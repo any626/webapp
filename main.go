@@ -17,6 +17,18 @@ var ENV string = os.Getenv("ENV")
 
 func main() {
 
+	checkEnv()
+
+	config := loadConfig()
+
+	db := database.Connect(&config.Database)
+	fmt.Println(db)
+
+	// http.Handle("/", routes.Routes)
+	// http.ListenAndService(":8080", nil)
+}
+
+func checkEnv() {
 	isValidEnv := false
 	for _, v := range environments {
 		if v == ENV {
@@ -29,27 +41,25 @@ func main() {
 		log.Fatalln("Unknown Environment Variable. Shutting Down")
 	}
 
-	fmt.Println(ENV)
+	fmt.Println("Environment: " + ENV)
+}
 
-	fmt.Println("=== Loading Configs ===")
+func loadConfig() Config {
+	fmt.Println("Loading configs...")
 	b, err := ioutil.ReadFile("./configs/"+ENV+"/config.json")
     if err != nil {
         log.Fatalln(err)
     }
 
-    configs := configs{}
-    err = json.Unmarshal(b, &configs)
+    config := Config{}
+    err = json.Unmarshal(b, &config)
     if err != nil {
         log.Fatalln(err)
     }
-    fmt.Printf("%+v\n", configs)
-
-	// load configs
-	// database.Connect()
-	// http.Handle("/", routes.Routes)
-	// http.ListenAndService(":8080", nil)
+    fmt.Println("Loaded Configs")
+    return config
 }
 
-type configs struct {
-	database.Config `json:"Database"`
+type Config struct {
+	Database database.Config `json:"database"`
 }

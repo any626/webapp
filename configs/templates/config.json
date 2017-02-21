@@ -2,10 +2,9 @@
     "database": {
         "host": "localhost",
         "port": 5432,
+        "database": "webapp",
         "username": "postgres",
         "password": "",
-        "charset": "utf8",
-        "schema": "public",
         "sslmode": "disable"
     }
 }
