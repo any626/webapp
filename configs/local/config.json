@@ -1,0 +1,11 @@
+{
+    "database": {
+        "host": "localhost",
+        "port": 5432,
+        "username": "postgres",
+        "password": "",
+        "charset": "utf8",
+        "schema": "public",
+        "sslmode": "disable"
+    }
+}
