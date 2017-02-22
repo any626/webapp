@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	// "github.com/any626/webapp/routes"
+	"github.com/any626/webapp/routes"
+	"github.com/any626/webapp/controllers"
 	"github.com/any626/webapp/database"
-	// "net/http"
+	"net/http"
 	"encoding/json"
 	"io/ioutil"
 )
@@ -22,10 +23,16 @@ func main() {
 	config := loadConfig()
 
 	db := database.Connect(&config.Database)
-	fmt.Println(db)
+	defer db.Close()
+	
+	handlers := controllers.NewControllers(db)
 
-	// http.Handle("/", routes.Routes)
-	// http.ListenAndService(":8080", nil)
+	// handlers.HomeController.Test()
+
+	r := routes.Routes(handlers)
+
+	http.Handle("/", r)
+	http.ListenAndServe(":8080", nil)
 }
 
 func checkEnv() {

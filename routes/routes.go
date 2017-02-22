@@ -6,10 +6,10 @@ import (
 	"github.com/any626/webapp/controllers"
 )
 
-func Routes() {
+func Routes(c *controllers.Controllers) *mux.Router {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", controllers.HomeController.getHome).Methods("GET")
+	r.HandleFunc("/", c.HomeController.Home).Methods("GET")
 
 	return r
 }

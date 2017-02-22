@@ -8,6 +8,6 @@ import (
 type HomeController struct {
 }
 
-func (c *HomeController) getHome(w http.ResponseWriter, r *http.Request) {
+func (c *HomeController) Home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Home");
 }
