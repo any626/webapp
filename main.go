@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"github.com/any626/webapp/routes"
+	// "github.com/any626/webapp/routes"
 	"github.com/any626/webapp/controllers"
 	"github.com/any626/webapp/database"
 	"net/http"
@@ -29,9 +29,9 @@ func main() {
 
 	// handlers.HomeController.Test()
 
-	r := routes.Routes(handlers)
+	middlewaredRouter := routes(handlers)
 
-	http.Handle("/", r)
+	http.Handle("/", middlewaredRouter)
 	http.ListenAndServe(":8080", nil)
 }
 
