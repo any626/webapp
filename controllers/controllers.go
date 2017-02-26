@@ -2,15 +2,15 @@ package controllers
 
 import (
     // "fmt"
-    "database/sql"
+    "github.com/any626/webapp/database"
 )
 
 type Controllers struct {
     HomeController HomeController
-    DB *sql.DB
+    DB *database.DB
 }
 
-func NewControllers(db *sql.DB) *Controllers {
+func NewControllers(db *database.DB) *Controllers {
     controllers := &Controllers{}
 
     return controllers

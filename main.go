@@ -23,9 +23,9 @@ func main() {
 	config := loadConfig()
 
 	db := database.Connect(&config.Database)
-	defer db.Close()
+	defer db.Disconnect()
 	
-	handlers := controllers.NewControllers(db)
+	handlers := controllers.NewControllers(&db)
 
 	// handlers.HomeController.Test()
 
