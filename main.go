@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"io/ioutil"
+	// "html/template"
 )
 
 var environments []string = []string{"local", "staging", "production"}
