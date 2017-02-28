@@ -6,9 +6,8 @@
     {{template "header" .}}
     <script type="text/javascript">
         function doPasswordsMatch() {
-            if ($('#password').val() != $('#password-confirm').val()) {
+            if ($('#password').val() != $('#confirm-password').val()) {
                 $('#error').text("Please make sure passwords match.");
-                console.log("test");
                 return false;
             }
         }
@@ -16,7 +15,7 @@
 </head>
 <body>
     <form action="/register" method="POST">
-        <div><p id="error"></p></div>
+        <div><p id="error">{{if .Error}}{{.Error}}{{end}}</p></div>
         <div>
             <label for="email">Email</label>
             <input type="email" name="email" id="email" required>
@@ -26,8 +25,8 @@
             <input type="password" name="password" id="password" required>
         </div>
         <div>
-            <label for="password-confirm">Confirm Password</label>
-            <input type="password" name="password" id="password-confirm" required>
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" name="confirm-password" id="confirm-password" required>
         </div>
         <div>
             <input type="submit" onclick="return doPasswordsMatch()">

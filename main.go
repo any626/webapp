@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	// "github.com/any626/webapp/routes"
-	"github.com/any626/webapp/controllers"
+	"github.com/any626/webapp/controller"
 	"github.com/any626/webapp/database"
-	"net/http"
+	"github.com/any626/webapp/service"
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	// "html/template"
 )
 
@@ -26,9 +26,9 @@ func main() {
 	db := database.Connect(&config.Database)
 	defer db.Disconnect()
 	
-	handlers := controllers.NewControllers(&db)
+	service := service.NewService(db)
 
-	// handlers.HomeController.Test()
+	handlers := controller.NewController(service)
 
 	middlewaredRouter := routes(handlers)
 

@@ -21,10 +21,10 @@ type Config struct {
 }
 
 type DB struct {
-    db *sql.DB
+    DB *sql.DB
 }
 
-func Connect(c *Config) DB {
+func Connect(c *Config) *DB {
     fmt.Println("Connecting to Database...")
     db, err := sql.Open("postgres", createDNS(c))
     if err != nil {
@@ -39,11 +39,11 @@ func Connect(c *Config) DB {
     
     fmt.Println("Connected to database successfully")
 
-    return DB{db: db}
+    return &DB{DB: db}
 }
 
 func (db *DB) Disconnect() error {
-    return db.db.Close()
+    return db.DB.Close()
 }
 
 func createDNS(c *Config) string {

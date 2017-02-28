@@ -4,15 +4,15 @@ import (
 	// "net/http"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
-	"github.com/any626/webapp/controllers"
+	"github.com/any626/webapp/controller"
 )
 
-func routes(c *controllers.Controllers) *negroni.Negroni {
+func routes(c *controller.Controller) *negroni.Negroni {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", c.HomeController.Home).Methods("GET")
-    r.HandleFunc("/register", c.HomeController.GetRegister).Methods("GET")
-    r.HandleFunc("/register", c.HomeController.PostRegister).Methods("Post")
+	r.HandleFunc("/", c.GetHome).Methods("GET")
+    r.HandleFunc("/register", c.GetRegister).Methods("GET")
+    r.HandleFunc("/register", c.PostRegister).Methods("POST")
 
 	n := negroni.Classic()
 	n.UseHandler(r)

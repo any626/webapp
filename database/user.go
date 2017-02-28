@@ -1,7 +1,8 @@
 package database
 
 import (
-    "fmt"
+    // "fmt"
+    // "log"
 )
 
 type User struct {
@@ -12,23 +13,10 @@ type User struct {
     LastName  string
 }
 
-func (db *DB) createUser(user User) (User, bool) {
-    res, err := db.db.Exec(`INSERT INTO users (name, email, password, first_name, last_name) VALUES
-        ($1, $2, $3, $4, $5) RETURNING id`, user.Email, user.Password, user.FirstName, user.LastName)
-
-    success := true
-
-    if err == nil {
-        fmt.Println(err)
-        success = false
+func (db *DB) CreateUser(user *User) error {
+    _, err := db.DB.Exec(`INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id`, user.Email, user.Password)
+    if err != nil {
+        return err
     }
-
-    user.ID, err = res.LastInsertId()
-
-    if err == nil {
-        fmt.Println(err)
-        success = false
-    }
-
-    return user, success
+    return nil
 }
