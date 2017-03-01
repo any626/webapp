@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/mail"
     // "html/template"
-    // "github.com/any626/webapp/database"
+    "github.com/any626/webapp/database"
 )
 
 func (c *Controller) GetHome(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,8 @@ func (c *Controller) PostRegister(w http.ResponseWriter, r *http.Request) {
     	return
     }
 
-    err = c.Service.CreateUser(email, password)
+    user := &database.User{Email: email, Password: password}
+    err = c.Service.CreateUser(user)
 
     if err != nil {
     	http.Error(w, err.Error(), http.StatusInternalServerError)
