@@ -6,5 +6,8 @@
         "username": "postgres",
         "password": "",
         "sslmode": "disable"
+    },
+    "auth": {
+        "key": "secret_key"
     }
 }

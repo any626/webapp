@@ -7,6 +7,7 @@ import (
 	"github.com/any626/webapp/controller"
 	"github.com/any626/webapp/database"
 	"github.com/any626/webapp/service"
+	"github.com/any626/webapp/router"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -26,13 +27,13 @@ func main() {
 	db := database.Connect(&config.Database)
 	defer db.Disconnect()
 	
-	service := service.NewService(db)
+	s := service.NewService(db, &config.Auth)
 
-	handlers := controller.NewController(service)
+	c := controller.NewController(s)
 
-	middlewaredRouter := routes(handlers)
+	r := router.NewRouter(c, s)
 
-	http.Handle("/", middlewaredRouter)
+	http.Handle("/", r)
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -70,4 +71,5 @@ func loadConfig() Config {
 
 type Config struct {
 	Database database.Config `json:"database"`
+	Auth service.Auth `json:"auth"`
 }

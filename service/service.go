@@ -7,10 +7,15 @@ import (
 
 type Service struct {
     DB *database.DB
+    Auth *Auth
 }
 
-func NewService(db *database.DB) *Service {
-	service := &Service{DB: db}
+type Auth struct {
+    Key string
+}
+
+func NewService(db *database.DB, auth *Auth) *Service {
+	service := &Service{DB: db, Auth: auth}
 
 	return service
 }
