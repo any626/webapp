@@ -15,7 +15,7 @@ type Router struct {
 
 func NewRouter(c *controller.Controller, s *service.Service) *mux.Router {
 
-    // r := &Router{controller: c, Service: s}
+    r := &Router{controller: c, Service: s}
 
 	mRouter := mux.NewRouter()
 
@@ -25,7 +25,7 @@ func NewRouter(c *controller.Controller, s *service.Service) *mux.Router {
 
     // mRouter.HandleFunc("/home", use(http.HandlerFunc(c.GetHome), r.validateJWT)).Methods("GET")
     // mRouter.HandleFunc("/home", Middleware(http.HandlerFunc(c.GetHome))).Methods("GET")
-    mRouter.HandleFunc("/home", use(c.GetHome, ValidateJWT)).Methods("GET")
+    mRouter.HandleFunc("/home", use(c.GetHome, r.validateJWT)).Methods("GET")
     // mRouter.HandleFunc("/home", log(HomeHandler)).Methods("GET")
     // mRouter.HandleFunc("/home", use(http.HandlerFunc(c.GetHome), Csrf))
 
@@ -41,20 +41,22 @@ func use(h http.HandlerFunc, middleware ...func(http.HandlerFunc) http.HandlerFu
 }
 
 //
-func ValidateJWT(h http.HandlerFunc) http.HandlerFunc {
+func (rt *Router) validateJWT(h http.HandlerFunc) http.HandlerFunc {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        // cookie, err := r.Cookie("Auth")
-        // if err != nil {
-        //     w.WriteHeader(http.StatusInternalServerError)
-        //     return
-        // }
-        // err = rt.Service.ParseJwt(cookie.Value)
-        // if err != nil {
-        //     w.WriteHeader(http.StatusInternalServerError)
-        //     return
-        // }
+        cookie, err := r.Cookie("Auth")
+        if err != nil {
+            fmt.Println(err)
+            fmt.Println("sdfsdf")
+            w.WriteHeader(http.StatusUnauthorized)
+            return
+        }
+        err = rt.Service.ParseJwt(cookie.Value)
+        if err != nil {
+            fmt.Println(err)
+            w.WriteHeader(http.StatusUnauthorized)
+            return
+        }
         fmt.Println("first")
-        return
         h.ServeHTTP(w, r)
         fmt.Println("second")
     })
