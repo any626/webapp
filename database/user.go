@@ -1,9 +1,10 @@
 package database
 
 import (
-    // "fmt"
+    "fmt"
     // "log"
     "database/sql"
+    "time"
 )
 
 type User struct {
@@ -12,6 +13,8 @@ type User struct {
     Password   string
     FirstName sql.NullString
     LastName  sql.NullString
+    CreatedAt time.Time
+    UpdatedAt time.Time
 }
 
 func (db *DB) CreateUser(user *User) error {
@@ -21,4 +24,14 @@ func (db *DB) CreateUser(user *User) error {
         return err
     }
     return nil
+}
+
+func (db *DB) GetUserByEmail(email string) *User {
+    user := &User{}
+    err := db.DB.QueryRow("SELECT * FROM users WHERE email = $1", email).Scan(&user.ID, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.CreatedAt, &user.UpdatedAt)
+    if err != nil {
+        fmt.Println(err)
+        return nil
+    }
+    return user
 }

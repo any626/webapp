@@ -25,19 +25,15 @@ type DB struct {
 }
 
 func Connect(c *Config) *DB {
-    fmt.Println("Connecting to Database...")
     db, err := sql.Open("postgres", createDNS(c))
     if err != nil {
         log.Fatalln(err)
     }
 
-    fmt.Println("Testing database connection")
     err = db.Ping()
     if err != nil {
         log.Fatalln(err)
     }
-    
-    fmt.Println("Connected to database successfully")
 
     return &DB{DB: db}
 }

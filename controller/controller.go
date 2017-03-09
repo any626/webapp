@@ -7,6 +7,7 @@ import (
     "net/http"
 )
 
+var SessionKey string = "session-key"
 
 var templates = template.Must(template.ParseGlob("views/*"))
 

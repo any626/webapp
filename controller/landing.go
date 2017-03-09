@@ -45,3 +45,21 @@ func (c *Controller) PostRegister(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "Registered")
 }
 
+func (c *Controller) GetSignIn(w http.ResponseWriter, r *http.Request) {
+    renderTemplate(w, "signIn", tmplData{Title: "Sign In"})
+}
+
+func (c *Controller) PostSignIn(w http.ResponseWriter, r *http.Request) {
+    c.Service.SignIn(w, r)
+}
+
+func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
+    session, err := c.Service.RediStore.Get(r, SessionKey)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    session.Options.MaxAge = -1
+    session.Save(r, w)
+    http.Redirect(w, r, "/", 302)
+}

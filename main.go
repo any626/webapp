@@ -8,10 +8,14 @@ import (
 	"github.com/any626/webapp/database"
 	"github.com/any626/webapp/service"
 	"github.com/any626/webapp/router"
+	"github.com/any626/webapp/shared"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	// "html/template"
+	// "github.com/garyburd/redigo/redis"
+	redistore "gopkg.in/boj/redistore.v1"
+	// "github.com/gorilla/sessions"
 )
 
 var environments []string = []string{"local", "staging", "production"}
@@ -26,12 +30,22 @@ func main() {
 
 	db := database.Connect(&config.Database)
 	defer db.Disconnect()
-	
-	s := service.NewService(db, &config.Auth)
+	fmt.Println("Connected to database.")
+
+	redisPool := shared.GetRedisPool(&config.Redis)
+	fmt.Println("Connected to redis.")
+
+	rStore, err := redistore.NewRediStoreWithPool(redisPool, []byte(config.Auth.Key))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer rStore.Close()
+
+	s := service.NewService(db, redisPool, rStore)
 
 	c := controller.NewController(s)
 
-	r := router.NewRouter(c, s)
+	r := router.NewRouter(c, s, rStore)
 
 	http.Handle("/", r)
 	http.ListenAndServe(":8080", nil)
@@ -54,7 +68,6 @@ func checkEnv() {
 }
 
 func loadConfig() Config {
-	fmt.Println("Loading configs...")
 	b, err := ioutil.ReadFile("./configs/"+ENV+"/config.json")
     if err != nil {
         log.Fatalln(err)
@@ -65,11 +78,16 @@ func loadConfig() Config {
     if err != nil {
         log.Fatalln(err)
     }
-    fmt.Println("Loaded Configs")
+    fmt.Println("Loaded configs")
     return config
 }
 
 type Config struct {
 	Database database.Config `json:"database"`
-	Auth service.Auth `json:"auth"`
+	Auth Authentication `json:"auth"`
+	Redis shared.RedisConfig `json:"redis"`
+}
+
+type Authentication struct {
+    Key string
 }

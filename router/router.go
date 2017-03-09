@@ -1,31 +1,41 @@
 package router
 
 import (
-    "fmt"
+    // "fmt"
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/any626/webapp/controller"
     "github.com/any626/webapp/service"
+    // "github.com/garyburd/redigo/redis"
+    redistore "gopkg.in/boj/redistore.v1"
 )
+
+var SessionKey string = "session-key"
 
 type Router struct {
     controller *controller.Controller
     Service *service.Service
+    RediStore *redistore.RediStore
 }
 
-func NewRouter(c *controller.Controller, s *service.Service) *mux.Router {
+func NewRouter(c *controller.Controller, s *service.Service, redisStore *redistore.RediStore) *mux.Router {
 
-    r := &Router{controller: c, Service: s}
+    r := &Router{controller: c, Service: s, RediStore: redisStore}
 
 	mRouter := mux.NewRouter()
 
 	mRouter.HandleFunc("/", c.GetIndex).Methods("GET")
     mRouter.HandleFunc("/register", c.GetRegister).Methods("GET")
     mRouter.HandleFunc("/register", c.PostRegister).Methods("POST")
+    mRouter.HandleFunc("/signin", c.GetSignIn).Methods("GET")
+    mRouter.HandleFunc("/signin", c.PostSignIn).Methods("POST")
+    mRouter.HandleFunc("/logout", c.Logout)
+    
+
 
     // mRouter.HandleFunc("/home", use(http.HandlerFunc(c.GetHome), r.validateJWT)).Methods("GET")
     // mRouter.HandleFunc("/home", Middleware(http.HandlerFunc(c.GetHome))).Methods("GET")
-    mRouter.HandleFunc("/home", use(c.GetHome, r.validateJWT)).Methods("GET")
+    mRouter.HandleFunc("/home", use(c.GetHome, r.Authenticate)).Methods("GET")
     // mRouter.HandleFunc("/home", log(HomeHandler)).Methods("GET")
     // mRouter.HandleFunc("/home", use(http.HandlerFunc(c.GetHome), Csrf))
 
@@ -41,23 +51,20 @@ func use(h http.HandlerFunc, middleware ...func(http.HandlerFunc) http.HandlerFu
 }
 
 //
-func (rt *Router) validateJWT(h http.HandlerFunc) http.HandlerFunc {
+func (rt *Router) Authenticate(h http.HandlerFunc) http.HandlerFunc {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        cookie, err := r.Cookie("Auth")
+        session, err := rt.RediStore.Get(r, SessionKey)
         if err != nil {
-            fmt.Println(err)
-            fmt.Println("sdfsdf")
+            w.WriteHeader(http.StatusInternalServerError)
+            return
+        }
+
+        _, ok := session.Values["userId"]
+        if !ok {
             w.WriteHeader(http.StatusUnauthorized)
             return
         }
-        err = rt.Service.ParseJwt(cookie.Value)
-        if err != nil {
-            fmt.Println(err)
-            w.WriteHeader(http.StatusUnauthorized)
-            return
-        }
-        fmt.Println("first")
+
         h.ServeHTTP(w, r)
-        fmt.Println("second")
     })
 }

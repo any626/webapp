@@ -1,0 +1,25 @@
+{{define "signIn"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{.Title}}</title>
+    {{template "header" .}}
+</head>
+<body>
+    <form action="/signin" method="POST">
+        <div><p id="error">{{if .Error}}{{.Error}}{{end}}</p></div>
+        <div>
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        <div>
+            <input type="submit">
+        </div>
+    </form>
+</body>
+</html>
+{{end}}
