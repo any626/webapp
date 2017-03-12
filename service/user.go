@@ -7,10 +7,10 @@ import (
 	// "errors"
 	// "time"
 	// "github.com/garyburd/redigo/redis"
- //    "gopkg.in/boj/redistore.v1"
-    "net/http"
-    "fmt"
-    // "github.com/gorilla/sessions"
+	//    "gopkg.in/boj/redistore.v1"
+	"net/http"
+	// "fmt"
+	// "github.com/gorilla/sessions"
 )
 
 func (s *Service) CreateUser(user *database.User) error {
@@ -25,48 +25,45 @@ func (s *Service) CreateUser(user *database.User) error {
 }
 
 func (s *Service) SignIn(w http.ResponseWriter, r *http.Request) {
-	email    := r.FormValue("email")
+	email := r.FormValue("email")
 	password := r.FormValue("password")
 
 	user := s.DB.GetUserByEmail(email)
 
 	if user == nil {
-		http.Error(w, "ERROR", http.StatusInternalServerError)
+		http.Redirect(w, r, "/sign-in", http.StatusFound)
 		return
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Redirect(w, r, "/sign-in", http.StatusFound)
 		return
 	}
 
 	session, err := s.RediStore.Get(r)
 	if err != nil {
-	    http.Error(w, err.Error(), http.StatusInternalServerError)
-	    return
+		http.Redirect(w, r, "/sign-in", http.StatusFound)
+		return
 	}
 
 	session.Values["userId"] = user.ID
 	err = session.Save(r, w)
-	fmt.Println(err)
 
-	http.Redirect(w, r, "/home", 302)
+	http.Redirect(w, r, "/home", http.StatusFound)
 }
 
 func (s *Service) IsAuth(w http.ResponseWriter, r *http.Request) bool {
 	session, err := s.RediStore.Get(r)
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        return false
-    }
+	if err != nil {
+		return false
+	}
 
-    _, ok := session.Values["userId"]
-    if !ok {
-        w.WriteHeader(http.StatusUnauthorized)
-        return false
-    }
+	_, ok := session.Values["userId"]
+	if !ok {
+		return false
+	}
 
-    return true
+	return true
 }

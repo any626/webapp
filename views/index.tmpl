@@ -1,0 +1,17 @@
+{{define "index"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{.Title}}</title>
+</head>
+<body>
+    <h1>Welcome!!!</h1>
+    {{if .Auth}}
+    <div><a href="/home">Home</a></div>
+    <div><a href="sign-out">Sign Out</a></div>
+    {{ else }}
+    <div><a href="sign-in">Sign In</a></div>
+    {{end}}
+</body>
+</html>
+{{end}}

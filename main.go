@@ -1,17 +1,17 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 	"github.com/any626/webapp/controller"
 	"github.com/any626/webapp/database"
-	"github.com/any626/webapp/service"
 	"github.com/any626/webapp/router"
+	"github.com/any626/webapp/service"
 	"github.com/any626/webapp/shared"
-	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	// "html/template"
 	// "github.com/garyburd/redigo/redis"
 	// redistore "gopkg.in/boj/redistore.v1"
@@ -66,26 +66,26 @@ func checkEnv() {
 }
 
 func loadConfig() Config {
-	b, err := ioutil.ReadFile("./configs/"+ENV+"/config.json")
-    if err != nil {
-        log.Fatalln(err)
-    }
+	b, err := ioutil.ReadFile("./configs/" + ENV + "/config.json")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-    config := Config{}
-    err = json.Unmarshal(b, &config)
-    if err != nil {
-        log.Fatalln(err)
-    }
-    fmt.Println("Loaded configs")
-    return config
+	config := Config{}
+	err = json.Unmarshal(b, &config)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("Loaded configs")
+	return config
 }
 
 type Config struct {
-	Database database.Config `json:"database"`
-	Auth Authentication `json:"auth"`
-	Redis shared.RedisConfig `json:"redis"`
+	Database database.Config    `json:"database"`
+	Auth     Authentication     `json:"auth"`
+	Redis    shared.RedisConfig `json:"redis"`
 }
 
 type Authentication struct {
-    Key string
+	Key string
 }

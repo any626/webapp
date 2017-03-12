@@ -1,4 +1,4 @@
-{{define "signIn"}}
+{{define "sign-in"}}
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,7 +6,7 @@
     {{template "header" .}}
 </head>
 <body>
-    <form action="/signin" method="POST">
+    <form action="/sign-in" method="POST">
         <div><p id="error">{{if .Error}}{{.Error}}{{end}}</p></div>
         <div>
             <label for="email">Email</label>
