@@ -14,8 +14,9 @@ import (
 	"net/http"
 	// "html/template"
 	// "github.com/garyburd/redigo/redis"
-	redistore "gopkg.in/boj/redistore.v1"
+	// redistore "gopkg.in/boj/redistore.v1"
 	// "github.com/gorilla/sessions"
+	"github.com/gorilla/handlers"
 )
 
 var environments []string = []string{"local", "staging", "production"}
@@ -35,19 +36,16 @@ func main() {
 	redisPool := shared.GetRedisPool(&config.Redis)
 	fmt.Println("Connected to redis.")
 
-	rStore, err := redistore.NewRediStoreWithPool(redisPool, []byte(config.Auth.Key))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer rStore.Close()
+	rediStore := shared.NewRediStoreWithPool(redisPool, []byte(config.Auth.Key))
+	defer rediStore.RStore.Close()
 
-	s := service.NewService(db, redisPool, rStore)
+	s := service.NewService(db, redisPool, rediStore)
 
 	c := controller.NewController(s)
 
-	r := router.NewRouter(c, s, rStore)
+	r := router.NewRouter(c, s)
 
-	http.Handle("/", r)
+	http.Handle("/", handlers.RecoveryHandler()(r))
 	http.ListenAndServe(":8080", nil)
 }
 

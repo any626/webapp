@@ -9,10 +9,9 @@ import (
 	// "github.com/garyburd/redigo/redis"
  //    "gopkg.in/boj/redistore.v1"
     "net/http"
+    "fmt"
     // "github.com/gorilla/sessions"
 )
-
-var SessionKey string = "session-key"
 
 func (s *Service) CreateUser(user *database.User) error {
 
@@ -43,14 +42,31 @@ func (s *Service) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := s.RediStore.Get(r, SessionKey)
+	session, err := s.RediStore.Get(r)
 	if err != nil {
 	    http.Error(w, err.Error(), http.StatusInternalServerError)
 	    return
 	}
 
 	session.Values["userId"] = user.ID
-	session.Save(r, w)
+	err = session.Save(r, w)
+	fmt.Println(err)
 
 	http.Redirect(w, r, "/home", 302)
+}
+
+func (s *Service) IsAuth(w http.ResponseWriter, r *http.Request) bool {
+	session, err := s.RediStore.Get(r)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return false
+    }
+
+    _, ok := session.Values["userId"]
+    if !ok {
+        w.WriteHeader(http.StatusUnauthorized)
+        return false
+    }
+
+    return true
 }

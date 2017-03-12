@@ -6,8 +6,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/any626/webapp/controller"
     "github.com/any626/webapp/service"
+    // "github.com/any626/webapp/shared"
     // "github.com/garyburd/redigo/redis"
-    redistore "gopkg.in/boj/redistore.v1"
+    // redistore "gopkg.in/boj/redistore.v1"
 )
 
 var SessionKey string = "session-key"
@@ -15,12 +16,11 @@ var SessionKey string = "session-key"
 type Router struct {
     controller *controller.Controller
     Service *service.Service
-    RediStore *redistore.RediStore
 }
 
-func NewRouter(c *controller.Controller, s *service.Service, redisStore *redistore.RediStore) *mux.Router {
+func NewRouter(c *controller.Controller, s *service.Service) *mux.Router {
 
-    r := &Router{controller: c, Service: s, RediStore: redisStore}
+    r := &Router{controller: c, Service: s}
 
 	mRouter := mux.NewRouter()
 
@@ -31,13 +31,7 @@ func NewRouter(c *controller.Controller, s *service.Service, redisStore *redisto
     mRouter.HandleFunc("/signin", c.PostSignIn).Methods("POST")
     mRouter.HandleFunc("/logout", c.Logout)
     
-
-
-    // mRouter.HandleFunc("/home", use(http.HandlerFunc(c.GetHome), r.validateJWT)).Methods("GET")
-    // mRouter.HandleFunc("/home", Middleware(http.HandlerFunc(c.GetHome))).Methods("GET")
     mRouter.HandleFunc("/home", use(c.GetHome, r.Authenticate)).Methods("GET")
-    // mRouter.HandleFunc("/home", log(HomeHandler)).Methods("GET")
-    // mRouter.HandleFunc("/home", use(http.HandlerFunc(c.GetHome), Csrf))
 
 	return mRouter
 }
@@ -50,18 +44,10 @@ func use(h http.HandlerFunc, middleware ...func(http.HandlerFunc) http.HandlerFu
     return h
 }
 
-//
 func (rt *Router) Authenticate(h http.HandlerFunc) http.HandlerFunc {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        session, err := rt.RediStore.Get(r, SessionKey)
-        if err != nil {
-            w.WriteHeader(http.StatusInternalServerError)
-            return
-        }
 
-        _, ok := session.Values["userId"]
-        if !ok {
-            w.WriteHeader(http.StatusUnauthorized)
+        if !rt.Service.IsAuth(w, r) {
             return
         }
 

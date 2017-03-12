@@ -54,7 +54,7 @@ func (c *Controller) PostSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) Logout(w http.ResponseWriter, r *http.Request) {
-    session, err := c.Service.RediStore.Get(r, SessionKey)
+    session, err := c.Service.RediStore.Get(r)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
