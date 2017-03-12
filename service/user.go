@@ -13,6 +13,7 @@ import (
 	// "github.com/gorilla/sessions"
 )
 
+// CreateUser creates the user
 func (s *Service) CreateUser(user *database.User) error {
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -24,6 +25,7 @@ func (s *Service) CreateUser(user *database.User) error {
 	return s.DB.CreateUser(user)
 }
 
+// SignIn handles the sign in  functionality.
 func (s *Service) SignIn(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
@@ -54,6 +56,7 @@ func (s *Service) SignIn(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/home", http.StatusFound)
 }
 
+// IsAuth checks if the user is authenticated.
 func (s *Service) IsAuth(w http.ResponseWriter, r *http.Request) bool {
 	session, err := s.RediStore.Get(r)
 	if err != nil {

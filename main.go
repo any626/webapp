@@ -12,17 +12,16 @@ import (
 	"log"
 	"net/http"
 	"os"
-	// "html/template"
-	// "github.com/garyburd/redigo/redis"
-	// redistore "gopkg.in/boj/redistore.v1"
-	// "github.com/gorilla/sessions"
 	"github.com/gorilla/handlers"
 )
 
+// environments holds the valid environments.
 var environments []string = []string{"local", "staging", "production"}
 
+// ENV holds the current environment variables.
 var ENV string = os.Getenv("ENV")
 
+// main is driver function
 func main() {
 
 	checkEnv()
@@ -49,6 +48,7 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
+// checkEnv determines if the environment is valid.
 func checkEnv() {
 	isValidEnv := false
 	for _, v := range environments {
@@ -65,6 +65,7 @@ func checkEnv() {
 	fmt.Println("Environment: " + ENV)
 }
 
+// loadConfig loads the functions under the configs/{environment} folder.
 func loadConfig() Config {
 	b, err := ioutil.ReadFile("./configs/" + ENV + "/config.json")
 	if err != nil {
@@ -80,12 +81,14 @@ func loadConfig() Config {
 	return config
 }
 
+// Config is the master for all configs.
 type Config struct {
 	Database database.Config    `json:"database"`
 	Auth     Authentication     `json:"auth"`
 	Redis    shared.RedisConfig `json:"redis"`
 }
 
+// Authentication is the config to hold the auth secret key.
 type Authentication struct {
 	Key string
 }
