@@ -5,6 +5,7 @@ import (
 	// "log"
 	"database/sql"
 	"time"
+	"github.com/lib/pq"
 )
 
 // User is a user model.
@@ -20,9 +21,13 @@ type User struct {
 
 // CreateUser creates the user in the database.
 func (db *DB) CreateUser(user *User) error {
-	_, err := db.DB.Exec(`INSERT INTO users (email, password, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING id`,
+	_, err := db.DB.Exec("INSERT INTO users (email, password, first_name, last_name) VALUES ($1, $2, $3, $4)",
 		user.Email, user.Password, user.FirstName, user.LastName)
 	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+		    fmt.Println(err.Code)
+		    fmt.Printf("%+v\n", err)
+		}
 		return err
 	}
 	return nil

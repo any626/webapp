@@ -45,7 +45,14 @@ func (c *Controller) PostRegister(w http.ResponseWriter, r *http.Request) {
 	err = c.Service.CreateUser(user)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		session, err := c.Service.RediStore.Get(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		session.AddFlash("Unable to register. Please try again.")
+		session.Save(r, w)
+		http.Redirect(w, r, "/register", 302)
 		return
 	}
 

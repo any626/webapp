@@ -11,22 +11,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
+	// "os"
 	"github.com/gorilla/handlers"
 )
-
-// environments holds the valid environments.
-var environments []string = []string{"local", "staging", "production"}
-
-// ENV holds the current environment variables.
-var ENV string = os.Getenv("ENV")
 
 // main is driver function
 func main() {
 
-	checkEnv()
-
 	config := loadConfig()
+	fmt.Println("Loaded configs.")
 
 	db := database.Connect(&config.Database)
 	defer db.Disconnect()
@@ -45,29 +38,14 @@ func main() {
 	r := router.NewRouter(c, s)
 
 	http.Handle("/", handlers.RecoveryHandler()(r))
+
+	fmt.Println("Server running...")
 	http.ListenAndServe(":8080", nil)
 }
 
-// checkEnv determines if the environment is valid.
-func checkEnv() {
-	isValidEnv := false
-	for _, v := range environments {
-		if v == ENV {
-			isValidEnv = true
-			break
-		}
-	}
-
-	if !isValidEnv {
-		log.Fatalln("Unknown Environment Variable. Shutting Down")
-	}
-
-	fmt.Println("Environment: " + ENV)
-}
-
-// loadConfig loads the functions under the configs/{environment} folder.
+// loadConfig loads the configs
 func loadConfig() Config {
-	b, err := ioutil.ReadFile("./configs/" + ENV + "/config.json")
+	b, err := ioutil.ReadFile("./configs/config.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -77,12 +55,12 @@ func loadConfig() Config {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("Loaded configs")
 	return config
 }
 
 // Config is the master for all configs.
 type Config struct {
+	Env      string             `json:"env"`
 	Database database.Config    `json:"database"`
 	Auth     Authentication     `json:"auth"`
 	Redis    shared.RedisConfig `json:"redis"`
